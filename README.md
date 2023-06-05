@@ -67,7 +67,7 @@ Install bcrypt
 ```
 pip install bcrypt
 ```
-Add below fucntion to functions.py - Used for encrypting/Decrypting
+Add below function to functions.py - Used for Encrypting
 ```
 
 import bcrypt
@@ -84,8 +84,10 @@ def hash_password(password):
 #hash_password("kenya1234")
 # Output
 # $2b$12$LyTDdwhw5GHR6ILxTSrCfu69/x4xpihitQ3QZXUHOXa7YRQtg2FcO
+```
+Add below function to functions.py - Used for Decrypting
 
-
+```
 def hash_verify(password,  hashed_password):
     bytes = password.encode('utf-8')
     result = bcrypt.checkpw(bytes, hashed_password.encode())
