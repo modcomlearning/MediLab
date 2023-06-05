@@ -228,10 +228,41 @@ def mpesa_payment(amount, phone, invoice_no):
 
         response = requests.post(url, json=payload, headers=headers)
         print(response.text)
-
+# Test
 mpesa_payment("2", "254729225710", "NCV003")
 ```
+g) Generate PDF
+This functions is used to generate PDFs.
+Add it to functions.py
+```
+def gen_pdf():
+    # Python program to create
+    # a pdf file
+    from fpdf import FPDF
+    # save FPDF() class into a
+    # variable pdf
+    pdf = FPDF()
+    # Add a page
+    pdf.add_page()
+    # set style and size of font
+    # that you want in the pdf
+    pdf.set_font("Arial", size=15)
+    # create a cell
+    pdf.cell(200, 10, txt="ModcomInstitute of tech",
+             ln=1, align='L')
+    # add another cell
+    pdf.cell(200, 10, txt="A Computer Science portal for geeks.",
+             ln=2, align='C')
+    # save the pdf with name .pdf
+    pdf.output("cv.pdf")
 
+# Test
+#gen_pdf()
+```
+
+###End of Step 1
+
+# Step 2 - API Development
 
 
 
