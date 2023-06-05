@@ -6,3 +6,44 @@ Patient can request for tests to be done at home(Send Nurse-For elderly) or
 in the hospital. Applications will have an admin dashboard to receive
 Requested Lab tests, Allocate to specific Nurses/Technicians who will
 perform the action of getting the specimen and take for testing.
+
+
+This is the Application Programming Interface(API) for this Application.
+
+### Step 1.
+Create a File named functions.py in your working Folder, in this file we will put neccessary functions to be used in our application. i.e Encryption, Send SMS, Randomize, Hashing, Send Email, PDF etc, These are general functions that any application will need.
+Add below functions in functions.py
+a) Send SMS function.
+Install AFricas talking Package 
+```
+pip install africastalking
+```
+Read more here https://africastalking.com/
+
+Add this Function
+```
+# sending an sms
+import africastalking
+africastalking.initialize(
+    username="joe2022",
+    api_key="aab3047eb9ccfb3973f928d4ebdead9e60beb936b4d2838f7725c9cc165f0c8a"
+    #justpaste.it/1nua8
+)
+sms = africastalking.SMS
+def send_sms(phone, message):
+    recipients = [phone]
+    sender = "AFRICASTKNG"
+    try:
+        response = sms.send(message, recipients)
+        print(response)
+    except Exception as error:
+        print("Error is ", error)
+
+# Test
+#send_sms("+254729225710", "This is test message on Fleet.")
+```
+
+hfjsd
+
+
+
