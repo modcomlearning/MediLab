@@ -149,6 +149,89 @@ def decrypt(encrypted_data):
 # Output
 # +254729225710
 ```
+e) Sending an Email
+```
+def send_email(email, message):
+    import smtplib
+    # creates SMTP session
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    # start TLS for security
+    s.starttls()
+    # Authentication
+    s.login("modcomlearning@gmail.com", "your password")
+    # sending the mail
+    s.sendmail("modcomlearning@gmail.com", email, message)
+    # terminating the session
+    s.quit()
+    
+# Test
+#send_email("johndoe@gmail.com", "Test Email")
+```
+
+f) Lipa na Mpesa
+This function will be used to Integrate Lipa Na Mpesa.
+Install requests
+``
+pip3 install requests
+```
+For more on MPESA API check https://developer.safaricom.co.ke/
+
+Add below function to functions.py
+```
+import requests
+import base64
+import datetime
+from requests.auth import HTTPBasicAuth
+
+# In this fucntion we provide phone(used to pay), amount to be paid and invoice no being paid for.
+def mpesa_payment(amount, phone, invoice_no):
+        # GENERATING THE ACCESS TOKEN
+        consumer_key = "GTWADFxIpUfDoNikNGqq1C3023evM6UH"
+        consumer_secret = "amFbAoUByPV2rM5A"
+
+        api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"  # AUTH URL
+        r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
+
+        data = r.json()
+        access_token = "Bearer" + ' ' + data['access_token']
+
+        #  GETTING THE PASSWORD
+        timestamp = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+        passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+        business_short_code = "174379"
+        data = business_short_code + passkey + timestamp
+        encoded = base64.b64encode(data.encode())
+        password = encoded.decode('utf-8')
+
+        # BODY OR PAYLOAD
+        payload = {
+            "BusinessShortCode": "174379",
+            "Password": "{}".format(password),
+            "Timestamp": "{}".format(timestamp),
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": amount,  # use 1 when testing
+            "PartyA": phone,  # change to your number
+            "PartyB": "174379",
+            "PhoneNumber": phone,
+            "CallBackURL": "https://modcom.co.ke/job/confirmation.php",
+            "AccountReference": "account",
+            "TransactionDesc": "account"
+        }
+
+        # POPULAING THE HTTP HEADER
+        headers = {
+            "Authorization": access_token,
+            "Content-Type": "application/json"
+        }
+
+        url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"  # C2B URL
+
+        response = requests.post(url, json=payload, headers=headers)
+        print(response.text)
+
+mpesa_payment("2", "254729225710", "NCV003")
+```
+
 
 
 
