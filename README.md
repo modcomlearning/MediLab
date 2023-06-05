@@ -67,7 +67,7 @@ Install bcrypt
 ```
 pip install bcrypt
 ```
-Add below function to functions.py - Used for Encrypting
+Add below function to functions.py - Used for Hashing
 ```
 
 import bcrypt
@@ -85,7 +85,7 @@ def hash_password(password):
 # Output
 # $2b$12$LyTDdwhw5GHR6ILxTSrCfu69/x4xpihitQ3QZXUHOXa7YRQtg2FcO
 ```
-Add below function to functions.py - Used for Decrypting
+Add below function to functions.py - Used for Verify Hash
 
 ```
 def hash_verify(password,  hashed_password):
