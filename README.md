@@ -42,8 +42,59 @@ def send_sms(phone, message):
 # Test
 #send_sms("+254729225710", "This is test message on Fleet.")
 ```
+b) Generating Random Numbers.
+Below functions generated Random Numbers of N Characters, Add it to function.py
+```
+def gen_random(N):
+    import string
+    import random
+    
+    # using random.choices()
+    # generating random strings
+    res = ''.join(random.choices(string.digits, k=N))
+    # print result
+    print("The generated random string : " + str(res))
+    return str(res)
+    
+# Test    
+#gen_random(N=4)
+```
+c) Hashing Algorithms - this is used to Hash Passwords for security purposes.
+Install bcrypt
+``
+pip install bcrypt
+```
+Add below fucntion to functions.py - Used for encrypting/Decrypting
+```
+import bcrypt
+def hash_password(password):
+    bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hash = bcrypt.hashpw(bytes, salt)
+    print("Bytes ", bytes)
+    print("Salt ", salt)
+    print("Hashed password ", hash.decode())
+    return hash.decode()
+    
+# Test
+#hash_password("kenya1234")
+# Output
+# $2b$12$LyTDdwhw5GHR6ILxTSrCfu69/x4xpihitQ3QZXUHOXa7YRQtg2FcO
 
-hfjsd
+
+def hash_verify(password,  hashed_password):
+    bytes = password.encode('utf-8')
+    result = bcrypt.checkpw(bytes, hashed_password.encode())
+    print(result)
+    return result
+
+
+#hash_verify("kenya1234", "$2b$12$LyTDdwhw5GHR6ILxTSrCfu69/x4xpihitQ3QZXUHOXa7YRQtg2FcO")
+# Output
+# Returns True/False
+```
+
+
 
 
 
