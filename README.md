@@ -42,6 +42,7 @@ def send_sms(phone, message):
 # Test
 #send_sms("+254729225710", "This is test message on Fleet.")
 ```
+
 b) Generating Random Numbers.
 Below functions generated Random Numbers of N Characters, Add it to function.py
 ```
@@ -58,14 +59,17 @@ def gen_random(N):
     
 # Test    
 #gen_random(N=4)
+
 ```
 c) Hashing Algorithms - this is used to Hash Passwords for security purposes.
 Install bcrypt
-``
+
+```
 pip install bcrypt
 ```
 Add below fucntion to functions.py - Used for encrypting/Decrypting
 ```
+
 import bcrypt
 def hash_password(password):
     bytes = password.encode("utf-8")
