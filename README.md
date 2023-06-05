@@ -16,7 +16,7 @@ Add below functions in functions.py
 a) Send SMS function.
 Install AFricas talking Package 
 ```
-pip install africastalking
+pip3 install africastalking
 ```
 Read more here https://africastalking.com/
 
@@ -65,7 +65,7 @@ c) Hashing Algorithms - this is used to Hash Passwords for security purposes.
 Install bcrypt
 
 ```
-pip install bcrypt
+pip3 install bcrypt
 ```
 Add below function to functions.py - Used for Hashing
 ```
@@ -99,6 +99,81 @@ def hash_verify(password,  hashed_password):
 # Output
 # Returns True/False
 ```
+d) Add below functions used for Encryption/Decryption
+Install cryptography
+```
+pip3 install cryptography
+```
+Add below fucntion to functions.py
+```
+# generates Encryption Key
+from cryptography.fernet import  Fernet
+def gen_key():
+    key = Fernet.generate_key()
+    with open("key.key", "wb") as key_file:
+        key_file.write(key)
+# Test
+#gen_key()
+```
+Load Key Function Below
+```
+def load_key():
+    return open("key.key", "rb").read()
+
+# Test
+#print(load_key())
+```
+Encrypt data.
+```
+def encrypt(data):
+    key = load_key()
+    f = Fernet(key)
+    encrypted_data = f.encrypt(data.encode())
+    print("Plain ", data)
+    print("Encrypted ", encrypted_data.decode())
+# Test
+#encrypt("+254729225710")
+# Output
+# gAAAAABjLX8d8JAsCS9ipJ8mO44Px4hb6GgfydOllU7P1JJqHWTQXEXchS-CMqsE2sSz2mDhrlGDjmmCYFCn4Em7X7F6nHVBTQ==
+```
+Decrypt data
+```
+def decrypt(encrypted_data):
+    key = load_key()
+    f = Fernet(key)
+    decrypted_data = f.decrypt(encrypted_data)
+    print("Decrypted data ", decrypted_data.decode())
+    return decrypted_data.decode()
+# Test - Provide the Encrypted
+#decrypt("gAAAAABjIY3vZqXEHBV9DIvizYUfsA6uPxx1pT16_OyopLYIAg4x52wUMwVWhRS2_IgVcQfKKZbWPRWmrcfJ15Nu3zj7rMdwWw==")
+# Output
+# +254729225710
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
