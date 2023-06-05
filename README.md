@@ -171,7 +171,7 @@ def send_email(email, message):
 f) Lipa na Mpesa
 This function will be used to Integrate Lipa Na Mpesa.
 Install requests
-``
+```
 pip3 install requests
 ```
 For more on MPESA API check https://developer.safaricom.co.ke/
