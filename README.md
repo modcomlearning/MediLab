@@ -303,19 +303,137 @@ def check_phone(phone):
 ###End of Step 1
 
 # Step 2 - API Development
+## Set Up.
+a) Create two files one named app.py, the other named views.py.
+The views.py will contain all the API Codes/Resource implemetation, These include but not limited to POST, GET, PUT, DELETE, PATCH etc.
+b) The app.py will include the API endpoints Configurations, it will act as the main file 
+Install Flask and flask_restful
+```
+pip3 install flask
+pip3 install flask_restful
+```
+Inside app.py, please add below code.
+
+```
+from flask import *
+from flask_restful import Api
+app = Flask(__name__)
+
+api=Api(app)
+
+# To configure Endpoints/Routes here
+# ...
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+```
+
+c) Inside views.py
+Add below imports, and create the Member Class
+```
+import pymysql
+import pymysql.cursors
+from flask_restful import Resource
+from flask import *
+from functions import *
+
+# Add Members class, and include two methods POST - member_signup, GET - member_signin
+class SignUp(Resource):
+    def post(self):
+        # Get data from Client
+        data = request.json
+        username = data['surname']
+        others = data['others']
+        gender = data['gender']
+        email = data['email']
+        phone = data['phone']
+        dob = data['dob']
+        password = data['password']
+        location_id = data['location_id']
+        # Check password validity
+        response = passwordValidity(password)
+        # Check if password validity is True
+        if response == True:
+            # Connect to DB
+            connection = pymysql.connect(host='localhost', user='root', password='',
+                                         database='MediLab')
+            cursor = connection.cursor()
+            sql = "insert into members (surname, others, gender, email, phone, dob, password, location_id) 
+            values(%s, %s, %s, %s, %s, %s, %s, %s)"
+            try:
+                cursor.execute(sql, (username, others, gender, email, phone, dob, hash_password(password), location_id))
+                connection.commit()
+                # Send SMS after successful registration
+                send_sms(phone, "Registration Successful.")
+
+                return jsonify({'message': 'POST SUCCESS. RECORD SAVED'})
+            except:
+                connection.rollback()
+                return jsonify({'message': 'POST FAILED. RECORD NOT SAVED'})
+        else:
+            return jsonify({'message': response})
+            
+            
+ class SignIn(Resource):        
+        def get(self):
+                # Get request form Client
+                data = request.json
+                email = data['email']
+                password =  data['password']
+
+                # Connect to DB
+                connection = pymysql.connect(host='localhost', user='root', password='',
+                                         database='MediLab')
+
+                # Check if email exists
+                sql = "select * from members where email = %s"
+                cursor = connection.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(sql, (email))
+                if cursor.rowcount == 0:
+                    return jsonify({'message': 'Email does not Exist!'})
+                else:
+                    # If email Exists, get its Hashed password on that row retrieved
+                    row = cursor.fetchone()
+                    hashed_password = row['password']
+                    # verify the hash and the password provided
+                    status = hash_verify(password, hashed_password)
+                    # Do they Match with Hash?, then loggin is successful
+                    if status == True:
+                        return jsonify({'message': 'Logged Successful'})
+                    # They do not match
+                    elif status == False:
+                        return jsonify({'message': 'Logged Not Successful'})
+                    else:
+                        return jsonify({'message': 'Something went wrong'})
+
+```
+Now add the Two Classes in your app.py
+```
+from flask import *
+from flask_restful import Api
+app = Flask(__name__)
+
+api=Api(app)
+
+# Add the Classes and configure the Endpoints
+from views import SignUp, SignIn
+api.add_resource(SignUp, '/api/member_signup')
+api.add_resource(SignIn, '/api/member_signin')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+```
+
+Post Man test Sign Up
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/d2f7185c-32a7-467f-acf5-d7d382ffbe25)
+
+Post Man test Sign In
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/bf5c759d-ecc0-4fcf-abe5-8fa190aa0735)
 
 
-
-
-
-
-
-
-
-
-
-
-
+ENd Part 2
 
 
 
