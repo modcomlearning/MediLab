@@ -259,6 +259,46 @@ def gen_pdf():
 # Test
 #gen_pdf()
 ```
+h) Check Password Validity
+This function checks password validity
+```
+import re
+def passwordValidity(password):
+    # define a function to check password strength
+    if (len(password) < 8):
+        return "inValid Password less than 8"
+
+    elif not re.search("[a-z]", password):
+        return "inValid Password no small letter"
+
+    elif not re.search("[A-Z]", password):
+        return "inValid Password no caps"
+
+    elif not re.search("[0-9]", password):
+        return "inValid Password no numbers"
+
+    elif not re.search("[_@$]", password):
+        return "inValid Password no symbol"
+    else:
+        return True
+
+#print(passwordValidity("jNjkbj334kffdghfdh"))
+```
+
+i) Below Function checks if phone number meets a given Format, Uses Regex
+```
+import re
+def check_phone(phone):
+    regex = "^\+254\d{9}"
+    if not re.match(regex, phone)  or len(phone) !=13:
+        print("Phone Not Ok")
+        return False
+    else:
+        print("Phone Ok")
+        return True
+
+#check_phone("+254729225710")
+```
 
 ###End of Step 1
 
