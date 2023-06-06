@@ -167,7 +167,43 @@ def gen_pdf():
     # add another cell
     pdf.cell(200, 10, txt="A Computer Science portal for geeks.",
              ln=2, align='C')
+    pdf.cell(200, 10, txt="A Computer Science portal for geeks.",
+             ln=3, align='C')
     # save the pdf with name .pdf
     pdf.output("cv.pdf")
 
-gen_pdf()
+#gen_pdf()
+
+
+import re
+def passwordValidity(password):
+    # define a function to check password strength
+    if (len(password) < 8):
+        return "inValid Password less than 8"
+
+    elif not re.search("[a-z]", password):
+        return "inValid Password no small letter"
+
+    elif not re.search("[A-Z]", password):
+        return "inValid Password no caps"
+
+    elif not re.search("[0-9]", password):
+        return "inValid Password no numbers"
+
+    elif not re.search("[_@$]", password):
+        return "inValid Password no symbol"
+    else:
+        return True
+
+#print(passwordValidity("jNjkbj334kffdghfdh"))
+import re
+def check_phone(phone):
+    regex = "^\+254\d{9}"
+    if not re.match(regex, phone)  or len(phone) !=13:
+        print("Phone Not Ok")
+        return False
+    else:
+        print("Phone Ok")
+        return True
+
+#check_phone("+254729225710")
