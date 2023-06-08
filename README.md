@@ -18,6 +18,7 @@ Install AFricas talking Package
 ```
 pip3 install africastalking
 ```
+
 Read more here https://africastalking.com/
 
 Add this Function
@@ -445,6 +446,9 @@ pip3 install flask_jwt_extended
 
 In Your app.py add below lines
 ```
+from flask_jwt_extended import JWTManager
+
+
 app = Flask(__name__)
 # add here 
 app.secret_key = "hfjdfhgjkdfhgjkdf865785"
