@@ -438,7 +438,7 @@ ENd Part 2
 
 # Part 3
 In this Part we will Add 3 Classes for MemberProfile, AddDependant, ViewDependant
-a) In views.py add below class named (MemberProfile) which allows us to provide a member_id and it returns details of that member.
+**a)** In views.py add below class named (MemberProfile) which allows us to provide a member_id and it returns details of that member.
 ```
 class MemberProfile(Resource):
     def post(self):
@@ -459,9 +459,22 @@ class MemberProfile(Resource):
             member = cursor.fetchone()
             return jsonify({'message': member})
  ```
- b) in views.py, add another  class named AddDependant, This class will help us Add a Dependant given a Member Id
+ 
+ In Your app.py File , please import and add the MemberProfile Resource.
  ```
- # Add Deoendant.
+from views.views import MemberSignUp,MemberSignin, MemberProfile
+api.add_resource(MemberSignUp, '/api/member_signup')
+api.add_resource(MemberSignin, '/api/member_signin')
+api.add_resource(MemberProfile, '/api/member_profile')
+ ```
+ Run the App and test in Postman, Add a new Request.
+ ![image](https://github.com/modcomlearning/MediLab/assets/66998462/0c3dda41-3d4d-4e6e-83e3-db27e40670d4)
+
+ 
+ **b)** in views.py, add another  class named AddDependant, This class will help us Add a Dependant given a Member Id.
+
+ ```
+ # Add Dependant.
 class AddDependant(Resource):
     def post(self):
         # Connect to MySQL
@@ -490,10 +503,21 @@ class AddDependant(Resource):
             return jsonify({'message': 'Failed. Try Again'})
  ```
  
- c) The Next class will help us view dependants for a given Member, How do we do that, In views.py we create a class named ViewDependants, In this class we will provide the member ID and look into dpendants table  and find the dependants belonging to that member ID, That means each member will view theor own dependants.
+ In app.py, please import and add the AddDependant Resource.
+ ```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant
+api.add_resource(MemberSignUp, '/api/member_signup')
+api.add_resource(MemberSignin, '/api/member_signin')
+api.add_resource(MemberProfile, '/api/member_profile')
+api.add_resource(AddDependant, '/api/add_dependant')
+ ```
+ Run the App and test in Postman, Add a new Request.
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/adcae53d-688b-4858-bf4f-55eb82ee8612)
+ 
+ 
+ **c)** The Next class will help us view dependants for a given Member, How do we do that, In views.py we create a class named ViewDependants, In this class we will provide the member ID and look into dpendants table  and find the dependants belonging to that member ID, That means each member will view theor own dependants.
 So, In views.py add below class.
 ```
-
 class ViewDependants(Resource):
     def post(self):
         json = request.json
@@ -517,6 +541,17 @@ class ViewDependants(Resource):
         # [ {}, {} ]  - JSON Array - with JSON Objects
 ```
 
+In app.py, please import and add the AddDependant Resource.
+ ```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants
+api.add_resource(MemberSignUp, '/api/member_signup')
+api.add_resource(MemberSignin, '/api/member_signin')
+api.add_resource(MemberProfile, '/api/member_profile')
+api.add_resource(AddDependant, '/api/add_dependant')
+api.add_resource(ViewDependants, '/api/view_dependants')
+ ```
+ Run the App and test in Postman, Add a new Request.
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/644d107d-d690-45dd-b77e-f4bc7f9b981e)
 
 # Part 4: Adding a JWT Token
 Check https://jwt.io/
