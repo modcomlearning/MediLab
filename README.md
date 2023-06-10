@@ -439,7 +439,7 @@ ENd Part 2
 
 # Part 3
 In this Part we will Add 3 Classes for MemberProfile, AddDependant, ViewDependant
-**a)** In views.py add below class named (MemberProfile) which allows us to provide a member_id and it returns details of that member.
+**a)** In views.py add below class named (MemberProfile) which allows us to provide a member_id and it returns details of that member, Is simple terms, Profile is specific member information.
 ```
 class MemberProfile(Resource):
     def post(self):
