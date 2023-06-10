@@ -10,7 +10,7 @@ perform the action of getting the specimen and take for testing.
 
 This is the Application Programming Interface(API) for this Application.
 
-### Step 1.
+# Part 1.
 Create a File named functions.py in your working Folder, in this file we will put neccessary functions to be used in our application. i.e Encryption, Send SMS, Randomize, Hashing, Send Email, PDF etc, These are general functions that any application will need.
 Add below functions in functions.py
 a) Send SMS function.
@@ -303,7 +303,7 @@ def check_phone(phone):
 
 ###End of Step 1
 
-# Step 2 - API Development
+# Part 2 - API Development
 ## Set Up.
 a) Create two files one named app.py, the other named views.py.
 The views.py will contain all the API Codes/Resource implemetation, These include but not limited to POST, GET, PUT, DELETE, PATCH etc.
@@ -436,9 +436,93 @@ Post Man test Sign In
 
 ENd Part 2
 
+# Part 3
+In this Part we will Add 3 Classes for MemberProfile, AddDependant, ViewDependant
+a) In views.py add below class named (MemberProfile) which allows us to provide a member_id and it returns details of that member.
+```
+class MemberProfile(Resource):
+    def post(self):
+        json = request.json
+        member_id = json['member_id']
+        sql = "select * from members where member_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='medilab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, member_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'Member does Not exist'})
+        else:
+            member = cursor.fetchone()
+            return jsonify({'message': member})
+ ```
+ b) in views.py, add another  class named AddDependant, This class will help us Add a Dependant given a Member Id
+ ```
+ # Add Deoendant.
+class AddDependant(Resource):
+    def post(self):
+        # Connect to MySQL
+        json = request.json
+        member_id = json['member_id']
+        surname = json['surname']
+        others = json['others']
+        dob = json['dob']
+
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='medilab')
+        cursor = connection.cursor()
+        # Insert Data
+        sql = ''' Insert into dependants(member_id,surname, others, dob)
+          values(%s, %s, %s, %s) '''
+        # Provide Data
+        data = (member_id, surname, others, dob)
+        try:
+            cursor.execute(sql, data)
+            connection.commit()
+            return jsonify({'message': 'Dependant Added'})
+        except:
+            connection.rollback()
+            return jsonify({'message': 'Failed. Try Again'})
+ ```
+ 
+ c) The Next class will help us view dependants for a given Member, How do we do that, In views.py we create a class named ViewDependants, In this class we will provide the member ID and look into dpendants table  and find the dependants belonging to that member ID, That means each member will view theor own dependants.
+So, In views.py add below class.
+```
+
+class ViewDependants(Resource):
+    def post(self):
+        json = request.json
+        member_id = json['member_id']
+        sql = "select * from dependants where member_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='medilab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, member_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'Member does Not exist'})
+        else:
+            dependants = cursor.fetchall()
+            return jsonify(dependants)
+        # {}   - Means Object in JSON, comes with key - value
+        # []   - Means a JSON Array
+        # [{}, {} ]  - JSON Array - with JSON Objects
+```
+
+
+
+
 # Adding a JWT Token
 Check https://jwt.io/
-Step 1
+
 Install JWT for Python
 ```
 pip3 install flask_jwt_extended
