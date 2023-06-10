@@ -514,48 +514,14 @@ class ViewDependants(Resource):
             return jsonify(dependants)
         # {}   - Means Object in JSON, comes with key - value
         # []   - Means a JSON Array
-        # [{}, {} ]  - JSON Array - with JSON Objects
+        # [ {}, {} ]  - JSON Array - with JSON Objects
 ```
 
 
-
-
-# Adding a JWT Token
+# Part 4: Adding a JWT Token
 Check https://jwt.io/
 
-Install JWT for Python
-```
-pip3 install flask_jwt_extended
-```
 
-In Your app.py add below lines
-```
-from flask_jwt_extended import JWTManager
-
-
-app = Flask(__name__)
-# add here 
-app.secret_key = "hfjdfhgjkdfhgjkdf865785"
-jwt = JWTManager(app)
-```
-
-Step 2
-In views.py add below function
-```
-@app.after_request
-def refresh_expiring_jwts(response):
-    try:
-        exp_timestamp = get_jwt()["exp"]
-        now = datetime.now()
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity='admin')
-            set_access_cookies(response, access_token)
-        return response
-    except (RuntimeError, KeyError):
-        # Case where there is not a valid JWT. Just return the original response
-        return response
-```
 
 
 
