@@ -19,7 +19,7 @@ def send_sms(phone, message):
 #send_sms("+254729225710", "This is test message on Fleet.")
 import requests
 import base64
-import datetime
+from datetime import datetime
 from requests.auth import HTTPBasicAuth
 
 
@@ -96,6 +96,8 @@ def gen_key():
         key_file.write(key)
 
 #gen_key()
+#gAAAAABkgERvXDGZguFb_LfkU760glQJuR3JUNYN8qN_dOdd8aIYKOkKxvAOK5_0_mPc9FOQb8e_2EvyhBmWW5q_kjQbMYXWDA==
+#gAAAAABkgERvXDGZguFb_LfkU760glQJuR3JUNYN8qN_dOdd8aIYKOkKxvAOK5_0_mPc9FOQb8e_2EvyhBmWW5q_kjQbMYXWDA==
 
 def load_key():
     return open("key.key", "rb").read()
@@ -109,8 +111,12 @@ def encrypt(data):
     print("Plain ", data)
     print("Encrypted ", encrypted_data.decode())
 
-#encrypt("+254729225710")
-# gAAAAABjLX8d8JAsCS9ipJ8mO44Px4hb6GgfydOllU7P1JJqHWTQXEXchS-CMqsE2sSz2mDhrlGDjmmCYFCn4Em7X7F6nHVBTQ==
+encrypt("+254729225710")
+
+#gAAAAABkgEQtc0-hFW6XGBPp9OBSE0wzbltYUt7KBHa5D9fksynwnlEMHDD-GMkQ8NckXxwxlBXFjuK0H-kaGQjuWYb0yxNN4A==
+#gAAAAABkgEROMW7LpQrmR3AwzbdPMcUsjG_LHYYbC5ZSP_0r7IQn3UePWGxB9ykPvNSe-cVwr2bHf0_ha_KGvoc3ar0zuFZB1A==
+
+
 def decrypt(encrypted_data):
     key = load_key()
     f = Fernet(key)
@@ -164,7 +170,7 @@ def gen_pdf():
     # create a cell
     pdf.cell(200, 10, txt="ModcomInstitute of tech",
              ln=1, align='L')
-    # add another cell
+    # add views cell
     pdf.cell(200, 10, txt="A Computer Science portal for geeks.",
              ln=2, align='C')
     pdf.cell(200, 10, txt="A Computer Science portal for geeks.",
