@@ -6,6 +6,7 @@ Patient can request for tests to be done at home(Send Nurse-For elderly) or
 in the hospital. Applications will have an admin dashboard to receive
 Requested Lab tests, Allocate to specific Nurses/Technicians who will
 perform the action of getting the specimen and take for testing.
+PLEASE FOLLOW STEP BY STEP!
 
 
 This is the Application Programming Interface(API) for this Application.
@@ -409,7 +410,7 @@ class SignUp(Resource):
                         return jsonify({'message': 'Something went wrong'})
 
 ```
-Now add the Two Classes in your app.py
+Now add the Two Classes(Resources) in your app.py
 ```
 from flask import *
 from flask_restful import Api
@@ -460,12 +461,14 @@ class MemberProfile(Resource):
             return jsonify({'message': member})
  ```
  
- In Your app.py File , please import and add the MemberProfile Resource.
+ Update Your app.py File , Please import and add the MemberProfile Resource.
  ```
+ #...
 from views.views import MemberSignUp,MemberSignin, MemberProfile
 api.add_resource(MemberSignUp, '/api/member_signup')
 api.add_resource(MemberSignin, '/api/member_signin')
 api.add_resource(MemberProfile, '/api/member_profile')
+#...
  ```
  Run the App and test in Postman, Add a new Request.
  ![image](https://github.com/modcomlearning/MediLab/assets/66998462/0c3dda41-3d4d-4e6e-83e3-db27e40670d4)
@@ -503,13 +506,15 @@ class AddDependant(Resource):
             return jsonify({'message': 'Failed. Try Again'})
  ```
  
- In app.py, please import and add the AddDependant Resource.
+ Update Your app.py, please import and add the AddDependant Resource.
  ```
+ # ...
 from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant
 api.add_resource(MemberSignUp, '/api/member_signup')
 api.add_resource(MemberSignin, '/api/member_signin')
 api.add_resource(MemberProfile, '/api/member_profile')
 api.add_resource(AddDependant, '/api/add_dependant')
+# ...
  ```
  Run the App and test in Postman, Add a new Request.
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/adcae53d-688b-4858-bf4f-55eb82ee8612)
@@ -541,14 +546,16 @@ class ViewDependants(Resource):
         # [ {}, {} ]  - JSON Array - with JSON Objects
 ```
 
-In app.py, please import and add the AddDependant Resource.
+Update Your app.py, please import and add the AddDependant Resource.
  ```
+ # ...
 from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants
 api.add_resource(MemberSignUp, '/api/member_signup')
 api.add_resource(MemberSignin, '/api/member_signin')
 api.add_resource(MemberProfile, '/api/member_profile')
 api.add_resource(AddDependant, '/api/add_dependant')
 api.add_resource(ViewDependants, '/api/view_dependants')
+# ...
  ```
  Run the App and test in Postman, Add a new Request.
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/644d107d-d690-45dd-b77e-f4bc7f9b981e)
