@@ -470,11 +470,12 @@ api.add_resource(MemberSignin, '/api/member_signin')
 api.add_resource(MemberProfile, '/api/member_profile')
 #...
  ```
- Run the App and test in Postman, Add a new Request.
- ![image](https://github.com/modcomlearning/MediLab/assets/66998462/0c3dda41-3d4d-4e6e-83e3-db27e40670d4)
+ Run the App and test in Postman, Add a new Request, Below POST request shows the details of a member_id = 5
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/6417b950-9d50-423a-958b-4c87af033250)
+
 
  
- **b)** in views.py, add another  class named AddDependant, This class will help us Add a Dependant given a Member Id.
+ **b)** in views.py, add another  class named AddDependant, This class will help us Add a Dependant given a Member Id
 
  ```
  # Add Dependant.
@@ -557,8 +558,9 @@ api.add_resource(AddDependant, '/api/add_dependant')
 api.add_resource(ViewDependants, '/api/view_dependants')
 # ...
  ```
- Run the App and test in Postman, Add a new Request.
-![image](https://github.com/modcomlearning/MediLab/assets/66998462/644d107d-d690-45dd-b77e-f4bc7f9b981e)
+ Run the App and test in Postman, Add a new Request, Below Post request show the dependants of a given member_id = 4
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/97f6ee92-e06a-4319-acdc-9f258b28af21)
+
 
 # Part 4: Adding a JWT Token
 Check https://jwt.io/
