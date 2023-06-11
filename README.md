@@ -571,7 +571,8 @@ Install JWT Extended
 ```
 pip3 install flask_jwt_extended
 ```
-Step 2,
+Step 2.
+
 In this example we will have two Tokens, access token and refresh tokens , the difference is they expire at different times,
 We will make;
   1. access token expire within a shortest time(can be used in authemtication most secure endpoints i.e Payments).
@@ -595,8 +596,9 @@ from flask_jwt_extended import create_access_token, jwt_required, create_refresh
 ```
 
 Step 4
+
 In this Step update your Login done earlier in Step 2, On the Login we will only Update where the Password validation returns 
-True, See an updated Login. Updated code is 0n line 625 - 631. That is Generated JWT Token upon successful Login.
+True, See an updated Login. Code to Update on Signin is between **TODO** Comment. 
 ```
 class MemberSignin(Resource):
     def post(self):
@@ -621,7 +623,7 @@ class MemberSignin(Resource):
             hashed_password = member['password']  # This Password is hashed
             # Jane provided a Plain password
             if hash_verify(password, hashed_password):
-                # TODO JSON WEB Tokens
+                # TODO
                 access_token = create_access_token(identity=surname, fresh=True)
                 refresh_token = create_refresh_token(surname)
                 return jsonify({
@@ -629,7 +631,7 @@ class MemberSignin(Resource):
                            'refresh_token': refresh_token,
                            'member': member
                        })
-                       # END
+                 # TODO
             else:
                 return jsonify({'message': 'Login Failed'})
                 
@@ -639,10 +641,14 @@ Test the Member Login endpoint in POSTMAN, Below we  see a JWT access token/Refr
 This is a POST Request
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/27622fab-5f48-43f5-9fda-61a6cc0bc264)
 
-# Part 5: Create More endpoints - Labs, Labtests, Booking, Payments.
+# Part 5: 
+### Create More endpoints - Labs, Labtests, Booking, Payments.
 In this part we will extend our Apis Base and add more endpoints to support our application.
+
 Step 1
-In views.py, Add below Class named - Laboratories- Returns a Lists of Laboratories. NB: You must have some Labs in your laboratories table. 
+
+In views.py, Add below Class named - Laboratories- Returns a Lists of Laboratories. 
+NB: You must have some Labs in your laboratories table. 
 ```
 class Laboratories(Resource):
     def get(self):
@@ -672,8 +678,10 @@ Test in Postman as a new Request, below we see some laboratories returned. This 
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/44e2e395-c8d8-475e-9cfd-df7d51080a03)
 
 
-Step 2
+Step 2.
+
 In views.py, add a LabTests class, This class will return lab test given the laboratory ID. Make sure you have some lab tests in your lab_tests table.
+
 Add below code in views.py
 ```
 class LabTests(Resource):
@@ -707,7 +715,8 @@ api.add_resource(LabTests, '/api/lab_tests')
 Test in Postman, Here we return lab tests belonging to Laboratory with ID 2(Lancet). This is a POST Request
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/03f4c48f-9eec-4e4f-aee8-95c6e1824038)
 
-Step 3
+Step 3.
+
 We create a Make booking Class, This is done since we have a members, dependants, laboratories and lab tests APIs,
 Its now possible to trigger a make booking API.
 in views.py, add below MakeBooking API.
@@ -788,9 +797,11 @@ PayLoad.
 ```
 ![image](https://github.com/modcomlearning/MediLab/assets/66998462/e447b70f-7ef4-4932-99af-4c800847de40)
 
-Step 4
-This Endpoint wi;l view member bookings made using the Member ID which is a Foreign key in booking table.
-in views.py, add below code.
+Step 4.
+
+This Endpoint will view member bookings made using the Member ID which is a Foreign key in booking table.
+
+In views.py, add below code.
 ```
 class MyBookings(Resource):
     def get(self):
