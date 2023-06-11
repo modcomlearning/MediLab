@@ -19,11 +19,11 @@ def send_sms(phone, message):
 #send_sms("+254729225710", "This is test message on Fleet.")
 import requests
 import base64
-from datetime import datetime
+import datetime
 from requests.auth import HTTPBasicAuth
 
 
-def mpesa_payment(amount, phone):
+def mpesa_payment(amount, phone, invoice_no):
         # GENERATING THE ACCESS TOKEN
         consumer_key = "GTWADFxIpUfDoNikNGqq1C3023evM6UH"
         consumer_secret = "amFbAoUByPV2rM5A"
@@ -94,6 +94,7 @@ def gen_key():
     key = Fernet.generate_key()
     with open("key.key", "wb") as key_file:
         key_file.write(key)
+
 
 #gen_key()
 #gAAAAABkgERvXDGZguFb_LfkU760glQJuR3JUNYN8qN_dOdd8aIYKOkKxvAOK5_0_mPc9FOQb8e_2EvyhBmWW5q_kjQbMYXWDA==

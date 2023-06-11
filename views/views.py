@@ -6,25 +6,7 @@ from functions import *
 import pymysql.cursors
 
 # import JWT Packages
-from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies
-from flask_jwt_extended import get_jwt
-
-
-# # Refreshing Tokens
-# @app.after_request
-# def refresh_expiring_jwts(response):
-#     try:
-#         exp_timestamp = get_jwt()["exp"]
-#         now = datetime.now()
-#         target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-#         if target_timestamp > exp_timestamp:
-#             access_token = create_access_token(identity='admin')
-#             set_access_cookies(response, access_token)
-#         return response
-#     except (RuntimeError, KeyError):
-#         # Case where there is not a valid JWT. Just return the original response
-#         return response
-
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token
 
 # Member SignUp.
 class MemberSignUp(Resource):
@@ -47,7 +29,7 @@ class MemberSignUp(Resource):
                 connection = pymysql.connect(host='localhost',
                                              user='root',
                                              password='',
-                                             database='medilab')
+                                             database='MediLab')
                 cursor = connection.cursor()
                 # Insert Data
                 sql = ''' Insert into members(surname, others,  gender, email,
@@ -61,14 +43,13 @@ class MemberSignUp(Resource):
                     cursor.execute(sql, data)
                     connection.commit()
                     # Send SMS/EMail
-                    code = gen_random(4)
+                    code = gen_random()
                     send_sms(phone, '''Thank you for Joining MediLab. 
                         Your Secret No: {}. Do not share.'''.format(code))
                     return jsonify({'message': 'Successful Registered'})
                 except:
                     connection.rollback()
                     return jsonify({'message': 'Failed. Try Again'})
-
             else:
                 return jsonify({'message': 'Invalid Phone +254'})
 
@@ -86,7 +67,7 @@ class MemberSignin(Resource):
         connection = pymysql.connect(host='localhost',
                                      user='root',
                                      password='',
-                                     database='medilab')
+                                     database='MediLab')
 
         cursor = connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute(sql, surname)
@@ -100,8 +81,13 @@ class MemberSignin(Resource):
             # Jane provided a Plain password
             if hash_verify(password, hashed_password):
                 # TODO JSON WEB Tokens
-                return jsonify({'message': member})
-
+                access_token = create_access_token(identity=surname, fresh=True)
+                refresh_token = create_refresh_token(surname)
+                return jsonify({
+                           'access_token': access_token,
+                           'refresh_token': refresh_token,
+                           'member': member
+                       })
             else:
                 return jsonify({'message': 'Login Failed'})
 
@@ -112,6 +98,7 @@ class MemberSignin(Resource):
 # Token, Member Profile, Add Dependant. View Dependants
 # Member  Profile
 class MemberProfile(Resource):
+    @jwt_required(refresh=True)
     def post(self):
         json = request.json
         member_id = json['member_id']
@@ -119,7 +106,7 @@ class MemberProfile(Resource):
         connection = pymysql.connect(host='localhost',
                                      user='root',
                                      password='',
-                                     database='medilab')
+                                     database='MediLab')
 
         cursor = connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute(sql, member_id)
@@ -131,7 +118,7 @@ class MemberProfile(Resource):
             return jsonify({'message': member})
 
 
-# Add Deoendant.
+# Add Dependant.
 class AddDependant(Resource):
     def post(self):
         # Connect to MySQL
@@ -144,7 +131,7 @@ class AddDependant(Resource):
         connection = pymysql.connect(host='localhost',
                                      user='root',
                                      password='',
-                                     database='medilab')
+                                     database='MediLab')
         cursor = connection.cursor()
         # Insert Data
         sql = ''' Insert into dependants(member_id,surname, others, dob)
@@ -168,7 +155,7 @@ class ViewDependants(Resource):
         connection = pymysql.connect(host='localhost',
                                      user='root',
                                      password='',
-                                     database='medilab')
+                                     database='MediLab')
 
         cursor = connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute(sql, member_id)
@@ -178,12 +165,123 @@ class ViewDependants(Resource):
         else:
             dependants = cursor.fetchall()
             return jsonify(dependants)
-        # {}   - Means Object in JSON, comes with key - value
-        # []   - Means a JSON Array
-        # [{}, {} ]  - JSON Array - with JSON Onjects
 
 
 
+# Get All Laboratories
+class Laboratories(Resource):
+    def get(self):
+        sql = "select * from laboratories"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
 
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Laboratories Listed'})
+        else:
+            laboratories = cursor.fetchall()
+            return jsonify(laboratories)
+
+
+
+class LabTests(Resource):
+    def post(self):
+        json = request.json
+        lab_id = json['lab_id']
+        sql = "select * from lab_tests where lab_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, lab_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Lab tests'})
+        else:
+            lab_tests = cursor.fetchall()
+            return jsonify(lab_tests)
+
+
+class MakeBooking(Resource):
+    def post(self):
+        # Connect to MySQL
+        json = request.json
+        member_id = json['member_id']
+        booked_for = json['booked_for']
+        dependant_id = json['dependant_id']
+        test_id = json['test_id']
+        appointment_date = json['appointment_date']
+        appointment_time = json['appointment_time']
+        where_taken = json['where_taken']
+        latitude = json['latitude']
+        longitude = json['longitude']
+        lab_id = json['lab_id']
+        invoice_no = json['invoice_no']
+
+
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+        cursor = connection.cursor()
+        # Insert Data
+        sql = ''' Insert into bookings(member_id,booked_for, dependant_id,test_id, appointment_date,
+         appointment_time, where_taken, latitude,longitude, lab_id, invoice_no )
+          values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
+        # Provide Data
+        data = (member_id,booked_for, dependant_id,test_id, appointment_date,
+         appointment_time, where_taken, latitude,longitude, lab_id, invoice_no)
+        try:
+            cursor.execute(sql, data)
+            connection.commit()
+            sql = '''select * from members where member_id = %s'''
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(sql, member_id)
+            member = cursor.fetchone()
+            phone = member['phone']
+            send_sms(decrypt(phone), "Booking Scheduled on {} at {} : Invoice No. {} ".format(appointment_date, appointment_time, invoice_no))
+            return jsonify({'message': 'Booking Received. '})
+        except:
+            connection.rollback()
+            return jsonify({'message': 'Failed. Try Again'})
+
+
+
+class MyBookings(Resource):
+    def get(self):
+        json = request.json
+        member_id = json['member_id']
+        sql = "select * from bookings where member_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, member_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Bookings'})
+        else:
+            bookings = cursor.fetchall()
+            return jsonify(str(bookings))
+
+
+
+class MakePayment(Resource):
+    def post(self):
+        json = request.json
+        phone = json['phone']
+        amount = json['amount']
+        invoice_no = json['invoice_no']
+        # Access Mpesa Functions locatated in functions.py
+        mpesa_payment(amount, phone, invoice_no)
+        return jsonify({'message': 'Sent - Complete Payment on Your Phone.'})
 
 
