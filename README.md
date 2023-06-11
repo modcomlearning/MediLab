@@ -635,21 +635,218 @@ class MemberSignin(Resource):
                 
 ```
 
-Test the Member Login endpoint in POSTMAN, Below we  see a JWT access token/Refresh Toen has been generated
+Test the Member Login endpoint in POSTMAN, Below we  see a JWT access token/Refresh Toen has been generated.
+This is a POST Request
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/27622fab-5f48-43f5-9fda-61a6cc0bc264)
+
+# Part 5: Create More endpoints - Labs, Labtests, Booking, Payments.
+In this part we will extend our Apis Base and add more endpoints to support our application.
+Step 1
+In views.py, Add below Class named - Laboratories- Returns a Lists of Laboratories. NB: You must have some Labs in your laboratories table. 
+```
+class Laboratories(Resource):
+    def get(self):
+        sql = "select * from laboratories"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Laboratories Listed'})
+        else:
+            laboratories = cursor.fetchall()
+            return jsonify(laboratories)
+```
+
+In app.py, Configure the Endpoint.
+```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants, Laboratories
+# ....
+api.add_resource(Laboratories, '/api/laboratories')
+```
+Test in Postman as a new Request, below we see some laboratories returned. This is a GET Request.
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/44e2e395-c8d8-475e-9cfd-df7d51080a03)
 
 
+Step 2
+In views.py, add a LabTests class, This class will return lab test given the laboratory ID. Make sure you have some lab tests in your lab_tests table.
+Add below code in views.py
+```
+class LabTests(Resource):
+    def post(self):
+        json = request.json
+        lab_id = json['lab_id']
+        sql = "select * from lab_tests where lab_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, lab_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Lab tests'})
+        else:
+            lab_tests = cursor.fetchall()
+            return jsonify(lab_tests)
+  ```
+  
+  
+In app.py, Configure the Endpoint.
+```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants, Laboratories, LabTests
+# ....
+api.add_resource(LabTests, '/api/lab_tests')
+```
+
+Test in Postman, Here we return lab tests belonging to Laboratory with ID 2(Lancet). This is a POST Request
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/03f4c48f-9eec-4e4f-aee8-95c6e1824038)
+
+Step 3
+We create a Make booking Class, This is done since we have a members, dependants, laboratories and lab tests APIs,
+Its now possible to trigger a make booking API.
+in views.py, add below MakeBooking API.
+```
+class MakeBooking(Resource):
+    def post(self):
+        # Connect to MySQL
+        json = request.json
+        member_id = json['member_id']
+        booked_for = json['booked_for']
+        dependant_id = json['dependant_id']
+        test_id = json['test_id']
+        appointment_date = json['appointment_date']
+        appointment_time = json['appointment_time']
+        where_taken = json['where_taken']
+        latitude = json['latitude']
+        longitude = json['longitude']
+        lab_id = json['lab_id']
+        invoice_no = json['invoice_no']
 
 
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+        cursor = connection.cursor()
+        # Insert Data
+        sql = ''' Insert into bookings(member_id,booked_for, dependant_id,test_id, appointment_date,
+         appointment_time, where_taken, latitude,longitude, lab_id, invoice_no )
+          values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
+        # Provide Data
+        data = (member_id,booked_for, dependant_id,test_id, appointment_date,
+         appointment_time, where_taken, latitude,longitude, lab_id, invoice_no)
+        try:
+            cursor.execute(sql, data)
+            connection.commit()
+            # Select from members to find Phone No
+            sql = '''select * from members where member_id = %s'''
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(sql, member_id)
+            member = cursor.fetchone()
+            # Get phone No
+            phone = member['phone']
+            # Send SMS to above phone number . NB: decrypt phone number!
+            send_sms(decrypt(phone), "Booking Scheduled on {} at {} : Invoice No. {} "
+            .format(appointment_date, appointment_time, invoice_no))
+            return jsonify({'message': 'Booking Received. '})
+        except:
+            connection.rollback()
+            return jsonify({'message': 'Failed. Try Again'})
+ 
+```
 
+  
+In app.py, Configure the Endpoint.
+```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants, Laboratories, LabTests, MakeBooking
+# ....
+api.add_resource(MakeBooking, '/api/make_booking')
+```
 
+Test in Postman. This is a POST Request
+PayLoad.
+```
+  {
+    "member_id": 11,
+    "booked_for": "Dependant",
+    "dependant_id": "2",
+    "test_id": 1,
+    "appointment_date": "2023-01-08",
+    "appointment_time": "10:00:00",
+    "where_taken": "Home",
+    "latitude": "1.456789",
+    "longitude": "32.3456789o",
+    "lab_id": 1,
+    "invoice_no": "5454545"
+}
+```
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/e447b70f-7ef4-4932-99af-4c800847de40)
 
+Step 4
+This Endpoint wi;l view member bookings made using the Member ID which is a Foreign key in booking table.
+in views.py, add below code.
+```
+class MyBookings(Resource):
+    def get(self):
+        json = request.json
+        member_id = json['member_id']
+        sql = "select * from bookings where member_id = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
 
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, member_id)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'No Bookings'})
+        else:
+            bookings = cursor.fetchall()
+            return bookings
 
+```
+In app.py, Configure the Endpoint.
+```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants, Laboratories, LabTests, MakeBooking, MyBookings
+# ....
+api.add_resource(MyBookings, '/api/mybookings')
+```
 
+Test In Postman. This is a Get Request.
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/62ecd2b6-cc91-457c-821b-e14cc0ee87f0)
 
+Step 5
+This Endpoints is used to Make Payment for a given Endpoint Using MPESA API Function.
+in views.py, add below code.
+```
+class MakePayment(Resource):
+    def post(self):
+        json = request.json
+        phone = json['phone']
+        amount = json['amount']
+        invoice_no = json['invoice_no']
+        # Access Mpesa Functions locatated in functions.py
+        mpesa_payment(amount, phone, invoice_no)
+        return jsonify({'message': 'Sent - Complete Payment on Your Phone.'})
+ ```
+ 
+ In app.py, Configure the Endpoint.
+```
+from views.views import MemberSignUp,MemberSignin, MemberProfile, AddDependant, ViewDependants, Laboratories, LabTests, MakeBooking, MyBookings, MakePayment
+# ....
+api.add_resource(MakePayment, '/api/make_payment')
+```
+Test in Postman This is a POST Request.
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/4429252a-3f50-42e3-8603-2f3cfb21256b)
 
-
-
+### End of Part 5
 
 
 
