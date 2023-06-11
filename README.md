@@ -719,7 +719,8 @@ Step 3.
 
 We create a Make booking Class, This is done since we have a members, dependants, laboratories and lab tests APIs,
 Its now possible to trigger a make booking API.
-in views.py, add below MakeBooking API.
+
+in views.py, add below MakeBooking API Class
 ```
 class MakeBooking(Resource):
     def post(self):
@@ -835,7 +836,8 @@ Test In Postman. This is a Get Request.
 
 Step 5
 This Endpoints is used to Make Payment for a given Endpoint Using MPESA API Function.
-in views.py, add below code.
+
+In views.py, add below code.
 ```
 class MakePayment(Resource):
     def post(self):
