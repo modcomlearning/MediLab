@@ -565,6 +565,7 @@ api.add_resource(ViewDependants, '/api/view_dependants')
 # Part 4: Adding a JWT Token
 In this Part, we look at JWT tokens which provide Token Authentication features and provides a secure access to Our API.
 Check https://jwt.io/
+
 Step 1
 Install JWT Extended
 ```
