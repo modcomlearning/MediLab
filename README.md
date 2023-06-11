@@ -341,7 +341,7 @@ from flask import *
 from functions import *
 
 # Add Members class, and include two methods POST - member_signup, GET - member_signin
-class SignUp(Resource):
+class MemberSignup(Resource):
     def post(self):
         # Get data from Client
         data = request.json
@@ -377,7 +377,7 @@ class SignUp(Resource):
             return jsonify({'message': response})
             
             
- class SignIn(Resource):        
+ class MemberSignin(Resource):        
         def get(self):
                 # Get request form Client
                 data = request.json
@@ -420,8 +420,8 @@ api=Api(app)
 
 # Add the Classes and configure the Endpoints
 from views import SignUp, SignIn
-api.add_resource(SignUp, '/api/member_signup')
-api.add_resource(SignIn, '/api/member_signin')
+api.add_resource(MemberSignup, '/api/member_signup')
+api.add_resource(MemberSignin, '/api/member_signin')
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -564,6 +564,79 @@ api.add_resource(ViewDependants, '/api/view_dependants')
 
 # Part 4: Adding a JWT Token
 Check https://jwt.io/
+In this Part, we look at JWT tokens which provide Token Authentication features and provides a secure access to Our API.
+Check https://jwt.io/
+Step 1
+Install JWT Extended
+```
+pip3 install flask_jwt_extended
+```
+Step 2,
+In this example we will have two Tokens, access token and refresh tokens , the difference is they expire at different times,
+We will make;
+  1. access token expire within a shortest time(can be used in authemtication most secure endpoints i.e Payments).
+  2. refresh token expire in longest time, can be used in less secure endpoints
+
+Next, Add below in your **app.py** File, The can be added Just below    ...    app = Flask(__name__)
+```
+from datetime import timedelta
+from flask_jwt_extended import JWTManager
+# # Set up JWT
+app.secret_key = "hfjdfhgjkdfhgjkdf865785"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+jwt = JWTManager(app)
+```
+Step 3
+In views.py, Import JWT Extended Packages.
+```
+# import JWT Packages
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token
+```
+
+Step 4
+In this Step update your Login done earlier in Step 2, On the Login we will only Update where the Password validation returns 
+True, See an updated Login. Updated code is 0n line 625 - 631. That is Generated JWT Token upon successful Login.
+```
+class MemberSignin(Resource):
+    def post(self):
+        json = request.json
+        surname = json['surname']
+        password = json['password']
+        # The user  enters a Plain Text Email
+        sql = "select * from members where surname = %s"
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='MediLab')
+
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, surname)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'User does Not exist'})
+        else:
+            # user Exist
+            member = cursor.fetchone()
+            hashed_password = member['password']  # This Password is hashed
+            # Jane provided a Plain password
+            if hash_verify(password, hashed_password):
+                # TODO JSON WEB Tokens
+                access_token = create_access_token(identity=surname, fresh=True)
+                refresh_token = create_refresh_token(surname)
+                return jsonify({
+                           'access_token': access_token,
+                           'refresh_token': refresh_token,
+                           'member': member
+                       })
+                       # END
+            else:
+                return jsonify({'message': 'Login Failed'})
+                
+```
+
+Test the Member Login endpoint in POSTMAN, Below we  see a JWT access token/Refresh Toen has been generated
+
 
 
 
