@@ -821,7 +821,14 @@ class MyBookings(Resource):
             return jsonify({'message': 'No Bookings'})
         else:
             bookings = cursor.fetchall()
-            return bookings
+            
+            import json
+            # date and time was not convertible to JSON, Hence the use of json.dumps, json.loads
+            # We pass the bookings to json.dumps
+            jsonStr = json.dumps(bookings, indent=1, sort_keys=True, default=str)
+            # Then covert json string to json object
+            return json.loads(jsonStr)
+           
 
 ```
 In app.py, Configure the Endpoint.
