@@ -4,7 +4,7 @@ from flask import Flask
 from flask_restful import Api
 
 app = Flask(__name__)
-
+#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
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
 # # Set up JWT
@@ -29,6 +29,9 @@ api.add_resource(LabTests, '/api/lab_tests')
 api.add_resource(MakeBooking, '/api/make_booking')
 api.add_resource(MyBookings, '/api/mybookings')
 api.add_resource(MakePayment, '/api/make_payment')
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

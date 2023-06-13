@@ -251,8 +251,8 @@ class MakeBooking(Resource):
             connection.rollback()
             return jsonify({'message': 'Failed. Try Again'})
 
-
-
+# Define a custom function to serialize datetime objects
+# subclass JSONEncoder
 class MyBookings(Resource):
     def get(self):
         json = request.json
@@ -270,7 +270,13 @@ class MyBookings(Resource):
             return jsonify({'message': 'No Bookings'})
         else:
             bookings = cursor.fetchall()
-            return jsonify(str(bookings))
+            # get json string
+            # date and time was not convertible to JSON, Hence the use of json.dumps, json.loads
+            import json
+            jsonStr = json.dumps(bookings, indent=1, sort_keys=True, default=str)
+            # then covert json string to json object
+            return json.loads(jsonStr)
+
 
 
 
@@ -283,5 +289,3 @@ class MakePayment(Resource):
         # Access Mpesa Functions locatated in functions.py
         mpesa_payment(amount, phone, invoice_no)
         return jsonify({'message': 'Sent - Complete Payment on Your Phone.'})
-
-
