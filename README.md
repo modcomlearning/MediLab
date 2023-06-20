@@ -1150,13 +1150,43 @@ class ViewNurses(Resource):
                return jsonify(nurses)
 
 ```
+Next, add this class which allow use allocate a nurse to a given booking invoice no.
+```
+class TaskAllocation(Resource):
+    @jwt_required(refresh=True)  # Refresh Token
+    def post(self):
+        json = request.json
+        nurse_id = json['nurse_id']
+        invoice_no = json['invoice_no']
+
+        connection = pymysql.connect(host='localhost',
+                                     user='root',
+                                     password='',
+                                     database='medilab')
+        cursor = connection.cursor()
+
+        sql = '''insert into nurse_lab_allocations(nurse_id, invoice_no) 
+           values(%s,%s)'''
+
+        # data
+        data = (nurse_id, invoice_no)
+
+        try:
+            cursor.execute(sql, data)
+            connection.commit()
+            return jsonify({'message': 'Allocated Suucessfully'})
+        except:
+            connection.rollback()
+            return jsonify({'message': 'Task Not Allocated'})
+
+```
 
 Finally, we configure all above classes created in Part 6, Go to app.py and add below code.
 ```
 # ....
 # APIs for Dasboard
 from views.views_dashboard import LabSignup, LabSignin, LabProfile, AddLabTests
-from views.views_dashboard import ViewLabTests, ViewLabBookings, AddNurse,ViewNurses
+from views.views_dashboard import ViewLabTests, ViewLabBookings, AddNurse,ViewNurses, TaskAllocation
 api.add_resource(LabSignup, '/api/lab_signup')
 api.add_resource(LabSignin, '/api/lab_signin')
 api.add_resource(LabProfile, '/api/lab_profile')
@@ -1165,6 +1195,7 @@ api.add_resource(ViewLabTests, '/api/view_lab_tests')
 api.add_resource(ViewLabBookings, '/api/view_bookings')
 api.add_resource(AddNurse, '/api/add_nurse')
 api.add_resource(ViewNurses, '/api/view_nurses')
+api.add_resource(TaskAllocation, '/api/task_allocation')
 # ....
 
 Run app.py and test in postman
