@@ -1198,10 +1198,31 @@ api.add_resource(ViewNurses, '/api/view_nurses')
 api.add_resource(TaskAllocation, '/api/task_allocation')
 # ....
 
-Run app.py and test in postman
+Run app.py and test in postman, Wen testing on POST pleae provide the right method 0 POST or GET, the right URL for endpoint and the Payload Body where required. i.e below we test Task Allocation.
+
+Looking at task allocation class created earlie in Part 6, we have a POST function defined,
+The URL configured will be http://127.0.0.1:5000/api/task_allocation and we need to provide the nurse_id(identifies the Nurse),the invoice_no(identifies the set of lab tests requested), the invoince No must exist in booking table and nurse id must exist in nurses table
+
+... and the payload looks as below.
+
+```
+{
+    "nurse_id": 1,
+    "invoice_no": "5454545"
+}
+```
+See in Postman below
+![image](https://github.com/modcomlearning/MediLab/assets/66998462/422aebbd-dd92-4912-906e-c9e53d629977)
 
 
 
+# Part 7
+In this section we create APis that will be used by Nurse application, The Nurses are required to Login with credetials given having been given an accout by admin.
+
+Once a Nurse Logs in the application will display their Allocated tasks given that the Nurse ID was used in the admin TaskAllocation.
+
+In views Folder create a file named views_nurse.py and we create a Login and a ViewAssignment Classes.
+# TODO
 
 
 
