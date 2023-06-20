@@ -305,10 +305,16 @@ def check_phone(phone):
 ###End of Step 1
 
 # Part 2 - API Development
+
+Check this Link for the APIs Endpoints t be created.
+
+https://coding.co.ke/advanced/api/API%20Design.pdf
+
 ## Set Up.
-a) Create two files one named app.py, the other named views.py.
-The views.py will contain all the API Codes/Resource implemetation, These include but not limited to POST, GET, PUT, DELETE, PATCH etc.
-b) The app.py will include the API endpoints Configurations, it will act as the main file 
+a) Structure: Create two files one named app.py, create a Folder named **views** and place a file named views.py inside.
+
+The **views.py** will contain all the API Codes/Resource implemetation, These include but not limited to POST, GET, PUT, DELETE, PATCH etc.
+b) The **app.py** will include the API endpoints Configurations, it will act as the main file 
 Install Flask and flask_restful
 ```
 pip3 install flask
