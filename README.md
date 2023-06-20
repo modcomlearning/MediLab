@@ -1197,13 +1197,13 @@ api.add_resource(AddNurse, '/api/add_nurse')
 api.add_resource(ViewNurses, '/api/view_nurses')
 api.add_resource(TaskAllocation, '/api/task_allocation')
 # ....
-
+```
 Run app.py and test in postman, Wen testing on POST pleae provide the right method 0 POST or GET, the right URL for endpoint and the Payload Body where required. i.e below we test Task Allocation.
 
 Looking at task allocation class created earlie in Part 6, we have a POST function defined,
 The URL configured will be http://127.0.0.1:5000/api/task_allocation and we need to provide the nurse_id(identifies the Nurse),the invoice_no(identifies the set of lab tests requested), the invoince No must exist in booking table and nurse id must exist in nurses table
 
-... and the payload looks as below.
+ and the payload looks as below.
 
 ```
 {
