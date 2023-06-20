@@ -868,6 +868,307 @@ Test in Postman This is a POST Request.
 
 ### End of Part 5
 
+# Part 6
+In this part we will create APIs to be used by the Admin Dashboard where the laboratories will be able to upload Lab test, add nurses, view bookings etc.
+in views folder create a file named views_dashboard.py, 
+```
+# Import Required modules
+import pymysql
+from flask_restful import *
+from flask import *
+from functions import *
+import pymysql.cursors
+
+# import JWT Packages
+from flask_jwt_extended import create_access_token, jwt_required, create_refresh_token
+# Create a Class for sign Up
+class LabSignup(Resource):
+    def post(self):
+        json = request.json
+        lab_name = json['lab_name']
+        permit_id = json['permit_id']
+        email = json['email']
+        phone = json['phone']
+        password = json['password']
+
+        # Check Password
+        response = passwordValidity(password)
+        if response:
+            if check_phone(phone):
+                connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+                cursor = connection.cursor()
+                sql = '''insert into laboratories(lab_name, permit_id, email,
+                phone, password) values(%s, %s, %s, %s, %s)'''
+                
+                # Data
+                data = (lab_name, permit_id, email, encrypt(phone), 
+                        hash_password(password))
+                try:
+                    cursor.execute(sql, data)
+                    connection.commit()
+                    code = gen_random(4)
+                    send_sms(phone, '''Thank you for Joining MediLab. 
+                    Your Secret No: {}. Do not share.'''.format(code))
+                    return jsonify({'message': 'Thank you for Joining MediLab'})
+                except:
+                    connection.rollback()
+                    return jsonify({'message': 'Not OK'})
+
+            else:
+                return jsonify({'message': 'Invalid Phone ENter +254'})
+        else :
+            return jsonify({'message': response})
+        
+```
+
+Add blow class for sign in 
+```
+class LabSignin(Resource):
+    def post(self):
+        json = request.json
+        email = json['email']
+        password = json['password']
+
+        sql = "select * from laboratories where email = %s"
+        connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, email)
+        count = cursor.rowcount
+        if count == 0:
+            return jsonify({'message': 'Email does Not exist'})
+        else:
+            lab = cursor.fetchone()
+            hashed_password = lab['password']
+            # Verify
+            if hash_verify(password, hashed_password):
+                # TODO JSON WEB Tokens
+                       access_token = create_access_token(identity=email,
+                                                          fresh=True)
+                       refresh_token = create_refresh_token(email)
+
+                       return jsonify({'message': lab, 
+                                       'access_token': access_token,
+                                       'refresh_token':refresh_token})            
+            else:
+                       return jsonify({'message': 'Login Failed'})
+            
+
+```
+
+Next add below class for Viewing the Lab Profile
+```
+class LabProfile(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          sql = "select * from laboratories where lab_id = %s"
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          
+          cursor = connection.cursor(pymysql.cursors.DictCursor)
+          cursor.execute(sql, lab_id)
+          count = cursor.rowcount
+          if count == 0:
+               return jsonify({'message': 'Lab does Not exist'})
+          else:
+               lab = cursor.fetchone()
+               return jsonify({'message': lab})
+          
+```
+This class will be used to Add Lab tests
+```
+class AddLabTests(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          test_name = json['test_name']
+          test_description  =  json['test_description']
+          test_cost = json['test_cost']
+          test_discount = json['test_discount']
+          availability = json['availability']
+          more_info = json['more_info']
+
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          cursor = connection.cursor()
+
+          sql = '''insert into lab_tests(lab_id, test_name, test_description,
+           test_cost, test_discount, availability, more_info) 
+           values(%s,%s,%s,%s,%s,%s,%s)'''
+          
+          # data 
+          data = (lab_id, test_name, test_description,
+          test_cost, test_discount, availability, more_info)
+          
+          try:
+            cursor.execute(sql, data)
+            connection.commit()
+            return jsonify({'message': 'Test Added'})
+          except:
+               connection.rollback()
+               return jsonify({'message': 'Test Not Added'})
+
+```
+
+Next, we create a class to help the Labs access their saved lab tests
+
+```
+class ViewLabTests(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          sql = "select * from lab_tests where lab_id = %s"
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          
+          cursor = connection.cursor(pymysql.cursors.DictCursor)
+          cursor.execute(sql, lab_id)
+          count = cursor.rowcount
+          if count == 0:
+               return jsonify({'message': 'No Tests Found'})
+          else:
+               tests = cursor.fetchall()
+               return jsonify(tests)
+
+```
+
+In this class, we get all bookings made, we select using a specific lab ID, it returns all bookings for that specific Lab
+```
+class ViewLabBookings(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          sql = "select * from bookings where lab_id = %s"
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          
+          cursor = connection.cursor(pymysql.cursors.DictCursor)
+          cursor.execute(sql, lab_id)
+          count = cursor.rowcount
+          if count == 0:
+               return jsonify({'message': 'No Bookings'})
+          else:
+               bookings = cursor.fetchall()
+               for booking in bookings:
+                    member_id = booking['member_id']
+                    sql = ''' select * from members where member_id=%s'''
+                    cursor = connection.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(sql, member_id)
+                    member = cursor.fetchone()
+                    booking['key'] = member
+                    print(member)
+                                    
+
+               import json
+               jsonStr = json.dumps(bookings, indent=1, sort_keys=True, default=str)
+               # then covert json string to json object
+               return json.loads(jsonStr)
+          
+
+```
+Below class will be used by Laboratories to Add Nurses details, we provide the lab_id to make sure that each nurse is added under a Lab
+```
+class AddNurse(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          surname = json['surname']
+          others  =  json['others']
+          gender = json['gender']
+          email = json['email']
+          phone = json['phone']
+          password = gen_random(5)
+
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          cursor = connection.cursor()
+
+          sql = '''insert into nurses(lab_id, surname, others,
+           gender, email, phone, password) 
+           values(%s,%s,%s,%s,%s,%s,%s)'''
+          
+          # data 
+          data = (lab_id, surname, others,
+           gender, email, encrypt(phone),  hash_password(password))
+          
+          try:
+            cursor.execute(sql, data)
+            connection.commit()
+            
+            send_sms(phone, '''Thank you for Joining MediLab. 
+                    Login to Nurse App. Your OTP: {}. Username: {}.'''
+                     .format(password, surname))
+
+            return jsonify({'message': 'Nurse Added, Check your Phone for Details'})
+          except:
+               connection.rollback()
+               return jsonify({'message': 'Nurse Add Failed'})
+
+```
+Then add another class to View Nurses, we provide the Lab_ID
+```
+class ViewNurses(Resource):
+     @jwt_required(refresh=True) # Refresh Token
+     def post(self):
+          json = request.json
+          lab_id = json['lab_id']
+          sql = "select * from nurses where lab_id = %s"
+          connection = pymysql.connect(host='localhost',
+                                                user='root',
+                                                password='',
+                                                database='medilab')
+          
+          cursor = connection.cursor(pymysql.cursors.DictCursor)
+          cursor.execute(sql, lab_id)
+          count = cursor.rowcount
+          if count == 0:
+               return jsonify({'message': 'No Nurses Found'})
+          else:
+               nurses = cursor.fetchall()
+               return jsonify(nurses)
+
+```
+
+Finally, we configure all above classes created in Part 6, Go to app.py and add below code.
+```
+# ....
+# APIs for Dasboard
+from views.views_dashboard import LabSignup, LabSignin, LabProfile, AddLabTests
+from views.views_dashboard import ViewLabTests, ViewLabBookings, AddNurse,ViewNurses
+api.add_resource(LabSignup, '/api/lab_signup')
+api.add_resource(LabSignin, '/api/lab_signin')
+api.add_resource(LabProfile, '/api/lab_profile')
+api.add_resource(AddLabTests, '/api/add_tests')
+api.add_resource(ViewLabTests, '/api/view_lab_tests')
+api.add_resource(ViewLabBookings, '/api/view_bookings')
+api.add_resource(AddNurse, '/api/add_nurse')
+api.add_resource(ViewNurses, '/api/view_nurses')
+# ....
+
+Run app.py and test in postman
+
 
 
 
